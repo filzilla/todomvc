@@ -17,71 +17,76 @@ application.get('/', function (req, res) {
 // put routes here
 
 
-application.get('/api/todos/', async (request, response) =>{
-    try{
-        var todos = await model.todomvc.findAll({});
-        }catch (e){
-        console.log ("error");
-     }
+application.get('/api/todos', async (request, response) =>{
+    
+        var todos = await models.todomvc.findAll({});
+
+     
         return response.json(todos);
 });
 
 application.post('/api/todos/', async (request, response) =>{
-    try{
-        var newTodo = response.body.new-todo;
 
-        var todos = await model.todomvc.create({
-            title: newTodo,
-            order: 1,
-            completed: false
+        var newTodo = request.body;
+        console.log(newTodo);
+        var todos = await models.todomvc.create({
+            title: newTodo.title,
+            order: newTodo.order,
+            completed: newTodo.completed
         });
-    }catch (e){
-        console.log ("error in the post");
-
-    }
-
-    return response.json(todos)
+   
+   // return response.json(todos)
 });
 
 
 application.put('/api/todos/:id', async (request, response) =>{
 
-    var id = request.body.id;
-    var todo = await model.todomvc.findOne
+    var id = request.params.id;
+    var changedTodo= request.body;
+    var todo = await models.todomvc.update({
+
+            title: changedTodo.title,
+            order: changedTodo.order,
+            completed: changedTodo.completed
+        },
+
+        {where: {
+            id: id
+        }
+
+
+    });
+
 });
 
 application.get('/api/todos/:id', async (request, response) =>{
-    try{
-    var id = parseInt(request.body.id);
 
-    var todo = await model.todomvc.findOne({
-        where: {
-            id: id
-        }
-        });
-    }catch (e) {
-        console.log("error in the get request using the id");
-    }
-
+     console.log(request.params.id);
+     var id = parseInt(request.params.id);
+     console.log(id);
+     var todo = await models.todomvc.findOne({
+         where: {
+             id: id
+         }
+         });
+   
     return response.json(todo);
 });
 
 application.delete('/api/todos/:id', async (request, response) =>{
-    try{
-        var todoToDelete = request.body.id;
-        var todos = model.todomvc.destroy({
+    
+        var todoToDelete = request.params.id;
+        var todos = models.todomvc.destroy({
             where: {
                     id: todoToDelete
                     }
 
-        });
-        }catch (e) {
-            console.log("error in deleting a todo");
-    }
+    });
+
         return response.json(todos);
 
     });
 
 application.listen(3000, function () {
-    console.log('Express running on http://localhost:3000/.')
+    console.log('Express running on http://localhost:3000')
     });
